@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cognitive Biases — Interactive Guide</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --border: #2e2e40;
+      --accent: #7c6dfa;
+      --accent2: #e96aff;
+      --text: #e8e8f0;
+      --muted: #8888a8;
+      --memory: #4ecdc4;
+      --social: #ff6b9d;
+      --decision: #ffa726;
+      --perception: #66bb6a;
+      --radius: 14px;
+      --card-radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 90px 24px 70px;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,109,250,.35) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 120%, rgba(233,106,255,.2) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(124,109,250,.15);
+      border: 1px solid rgba(124,109,250,.4);
+      color: var(--accent);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--muted);
+      max-width: 580px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Controls ── */
+    .controls {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(15,15,19,.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+    }
+    .controls-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+    #search {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px 10px 42px;
+      border-radius: var(--radius);
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    #search:focus { border-color: var(--accent); }
+    #search::placeholder { color: var(--muted); }
+
+    .filter-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .filter-btn[data-cat="Memory"].active    { background: var(--memory);    border-color: var(--memory); }
+    .filter-btn[data-cat="Social"].active    { background: var(--social);    border-color: var(--social); }
+    .filter-btn[data-cat="Decision"].active  { background: var(--decision);  border-color: var(--decision); }
+    .filter-btn[data-cat="Perception"].active{ background: var(--perception);border-color: var(--perception); }
+
+    .count-label {
+      margin-left: auto;
+      font-size: .82rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── Grid ── */
+    .grid-wrap { max-width: 1200px; margin: 36px auto; padding: 0 24px 60px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      animation: fadeUp .4s ease both;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,.4);
+      border-color: rgba(124,109,250,.4);
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card-header { display: flex; align-items: flex-start; gap: 12px; }
+    .cat-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .cat-dot.Memory     { background: var(--memory); }
+    .cat-dot.Social     { background: var(--social); }
+    .cat-dot.Decision   { background: var(--decision); }
+    .cat-dot.Perception { background: var(--perception); }
+
+    .card-title-wrap { flex: 1; }
+    .card-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .card-tag {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 2px 10px;
+      border-radius: 999px;
+      margin-top: 5px;
+    }
+    .tag-Memory     { background: rgba(78,205,196,.12); color: var(--memory); }
+    .tag-Social     { background: rgba(255,107,157,.12); color: var(--social); }
+    .tag-Decision   { background: rgba(255,167,38,.12);  color: var(--decision); }
+    .tag-Perception { background: rgba(102,187,106,.12); color: var(--perception); }
+
+    .card-desc {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .card-example {
+      background: var(--surface2);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: .83rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .card-example span {
+      display: block;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* ── No results ── */
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .no-results h3 { font-size: 1.3rem; margin-bottom: 8px; color: var(--text); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: .8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-badge">Psychology &amp; Behavioral Science</div>
+  <h1>Cognitive Biases</h1>
+  <p>Explore the systematic mental shortcuts and blind spots that shape how we think, remember, and decide every day.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Biases covered</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">Categories</div></div>
+    <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Science-backed</div></div>
+  </div>
+</section>
+
+<!-- ── Controls ── -->
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="search" placeholder="Search biases…" aria-label="Search biases"/>
+    </div>
+    <div class="filter-btns">
+      <button class="filter-btn active" data-cat="All">All</button>
+      <button class="filter-btn" data-cat="Memory">Memory</button>
+      <button class="filter-btn" data-cat="Social">Social</button>
+      <button class="filter-btn" data-cat="Decision">Decision-Making</button>
+      <button class="filter-btn" data-cat="Perception">Perception</button>
+    </div>
+    <div class="count-label" id="count"></div>
+  </div>
+</div>
+
+<!-- ── Grid ── -->
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+</div>
+
+<footer>Built with curiosity &mdash; Cognitive Biases Reference &copy; 2025</footer>
+
+<script>
+const biases = [
+  // ── Memory ──
+  {
+    name: "Availability Heuristic",
+    cat: "Memory",
+    desc: "We overestimate the likelihood of events that are easy to recall — especially vivid, recent, or emotionally charged ones.",
+    example: "After seeing news coverage of plane crashes, people fear flying far more than statistically warranted."
+  },
+  {
+    name: "Rosy Retrospection",
+    cat: "Memory",
+    desc: "We remember past events as being more positive than they actually were, smoothing over discomfort over time.",
+    example: "A painful camping trip is remembered fondly a year later as a 'great adventure.'"
+  },
+  {
+    name: "Fading Affect Bias",
+    cat: "Memory",
+    desc: "Negative emotions associated with memories fade faster than positive ones.",
+    example: "The embarrassment of a public mistake fades quickly, while the joy of an award lingers."
+  },
+  {
+    name: "Source Confusion",
+    cat: "Memory",
+    desc: "We misattribute the origin of a memory, often confusing where or how we learned something.",
+    example: "Believing you saw something in person when you actually read about it online."
+  },
+  {
+    name: "The Misinformation Effect",
+    cat: "Memory",
+    desc: "Post-event information alters our memory of the original event.",
+    example: "Witnesses who hear leading questions recall details differently than those who don't."
+  },
+  {
+    name: "Cryptomnesia",
+    cat: "Memory",
+    desc: "A forgotten memory is mistakenly believed to be an original thought or creation.",
+    example: "A songwriter writes a melody thinking it's new, but it's actually a song they heard years ago."
+  },
+  {
+    name: "Hindsight Bias",
+    cat: "Memory",
+    desc: "After learning an outcome, we believe we 'knew it all along,' distorting memory of past uncertainty.",
+    example: "After a stock crashes, investors claim they always suspected it was overvalued."
+  },
+  {
+    name: "Picture Superiority Effect",
+    cat: "Memory",
+    desc: "Concepts presented as images are remembered far better than words alone.",
+    example: "Infographics in a presentation are recalled days later; bullet points are not."
+  },
+  // ── Social ──
+  {
+    name: "Bandwagon Effect",
+    cat: "Social",
+    desc: "We adopt beliefs or behaviors because many others do, independent of the underlying evidence.",
+    example: "A restaurant with a long queue is assumed to be better than the empty one next door."
+  },
+  {
+    name: "Halo Effect",
+    cat: "Social",
+    desc: "A positive impression in one area (e.g., attractiveness) colors our perception of unrelated traits.",
+    example: "An attractive candidate is assumed to be more competent during a job interview."
+  },
+  {
+    name: "In-group Bias",
+    cat: "Social",
+    desc: "We favor members of our own group over outsiders, even when group membership is arbitrary.",
+    example: "Team members rate each other's work higher than identical work done by outsiders."
+  },
+  {
+    name: "Fundamental Attribution Error",
+    cat: "Social",
+    desc: "We attribute others' behavior to character and our own to circumstances.",
+    example: "When someone cuts us off in traffic, we assume they're rude — not that they're rushing to a hospital."
+  },
+  {
+    name: "Social Desirability Bias",
+    cat: "Social",
+    desc: "We answer questions and make choices that make us look favorable to others rather than being honest.",
+    example: "Survey respondents overreport charitable donations and underreport bad habits."
+  },
+  {
+    name: "Bystander Effect",
+    cat: "Social",
+    desc: "People are less likely to offer help in an emergency when others are present, assuming someone else will act.",
+    example: "A person collapses in a busy plaza, and crowds walk past assuming someone has already called for help."
+  },
+  {
+    name: "Curse of Knowledge",
+    cat: "Social",
+    desc: "Once we know something, it becomes very hard to imagine not knowing it — making it hard to teach or explain.",
+    example: "An expert programmer writes documentation that's incomprehensible to beginners."
+  },
+  {
+    name: "Spotlight Effect",
+    cat: "Social",
+    desc: "We overestimate how much other people notice and pay attention to our appearance and actions.",
+    example: "Someone who spills coffee on their shirt spends the day convinced everyone noticed."
+  },
+  // ── Decision-Making ──
+  {
+    name: "Confirmation Bias",
+    cat: "Decision",
+    desc: "We search for, interpret, and recall information in a way that confirms our pre-existing beliefs.",
+    example: "An investor only reads articles that support their bullish view on a stock they already own."
+  },
+  {
+    name: "Sunk Cost Fallacy",
+    cat: "Decision",
+    desc: "We continue investing in something because of past unrecoverable costs rather than future value.",
+    example: "Finishing a terrible movie because you already paid for the ticket."
+  },
+  {
+    name: "Anchoring Bias",
+    cat: "Decision",
+    desc: "We rely too heavily on the first piece of information encountered when making decisions.",
+    example: "A salary negotiation starts at $50k — even if the job is worth $80k, offers cluster around the anchor."
+  },
+  {
+    name: "Status Quo Bias",
+    cat: "Decision",
+    desc: "We prefer the current state of affairs over change, even when alternatives would be better.",
+    example: "Sticking with a default insurance plan rather than evaluating alternatives that may be cheaper."
+  },
+  {
+    name: "Framing Effect",
+    cat: "Decision",
+    desc: "We react differently to the same information depending on how it's presented.",
+    example: "'90% survival rate' feels safer than '10% mortality rate,' though they're identical."
+  },
+  {
+    name: "Overconfidence Bias",
+    cat: "Decision",
+    desc: "We overestimate our own abilities, knowledge, and the accuracy of our predictions.",
+    example: "Most drivers rate themselves as above average — a statistical impossibility."
+  },
+  {
+    name: "Gambler's Fallacy",
+    cat: "Decision",
+    desc: "We believe that past random events affect the probability of future independent events.",
+    example: "After a coin lands heads five times, people bet on tails because it's 'due.'"
+  },
+  {
+    name: "Planning Fallacy",
+    cat: "Decision",
+    desc: "We underestimate the time, costs, and risks of future tasks while overestimating benefits.",
+    example: "A software project estimated at 3 months takes 9 — nearly every time."
+  },
+  {
+    name: "Zero-Risk Bias",
+    cat: "Decision",
+    desc: "We prefer options that eliminate one risk entirely over options that reduce overall risk more.",
+    example: "People prefer eliminating a small risk completely over a larger reduction of a big risk."
+  },
+  {
+    name: "Hyperbolic Discounting",
+    cat: "Decision",
+    desc: "We prefer smaller, immediate rewards over larger, later ones — even when the math favors waiting.",
+    example: "Choosing $50 today over $100 next month, but preferring $100 in 31 days over $50 in 30."
+  },
+  {
+    name: "Reactance",
+    cat: "Decision",
+    desc: "When our freedom to choose is restricted, we desire the forbidden option even more.",
+    example: "Telling teenagers not to listen to a band makes the band far more appealing."
+  },
+  // ── Perception ──
+  {
+    name: "Dunning-Kruger Effect",
+    cat: "Perception",
+    desc: "People with low competence in a domain overestimate their ability; experts often underestimate theirs.",
+    example: "A novice investor believes they can beat the market; a fund manager knows they likely cannot."
+  },
+  {
+    name: "Optimism Bias",
+    cat: "Perception",
+    desc: "We believe we are less likely than others to experience negative events and more likely to succeed.",
+    example: "Most people believe they are less likely than average to get divorced or develop cancer."
+  },
+  {
+    name: "Negativity Bias",
+    cat: "Perception",
+    desc: "Negative experiences have a greater impact on our psychology than equally positive ones.",
+    example: "One harsh review stings far more than ten glowing ones feel good."
+  },
+  {
+    name: "Illusory Truth Effect",
+    cat: "Perception",
+    desc: "Repeated exposure to a statement makes us more likely to believe it's true, regardless of accuracy.",
+    example: "Advertising slogans repeated enough times start to feel like facts."
+  },
+  {
+    name: "Frequency Illusion (Baader-Meinhof)",
+    cat: "Perception",
+    desc: "Once we notice something for the first time, we begin seeing it everywhere — it hasn't increased, only our attention has.",
+    example: "After buying a red car, you suddenly see red cars everywhere."
+  },
+  {
+    name: "Clustering Illusion",
+    cat: "Perception",
+    desc: "We see patterns in random data because our brains are pattern-matching machines.",
+    example: "Seeing 'streaks' in random coin flip sequences and believing a pattern exists."
+  },
+  {
+    name: "The IKEA Effect",
+    cat: "Perception",
+    desc: "We place disproportionately high value on things we partially created ourselves.",
+    example: "Furniture you assembled yourself feels more valuable than identical pre-assembled furniture."
+  },
+  {
+    name: "Not Invented Here",
+    cat: "Perception",
+    desc: "We tend to undervalue ideas, products, or solutions that come from outside our own group.",
+    example: "A company refuses to adopt a competitor's superior software solution out of pride."
+  }
+];
+
+const grid = document.getElementById('grid');
+const searchEl = document.getElementById('search');
+const filterBtns = document.querySelectorAll('.filter-btn');
+const countEl = document.getElementById('count');
+
+let activeCat = 'All';
+let searchVal = '';
+
+function catClass(cat) {
+  if (cat === 'Decision') return 'Decision';
+  return cat;
+}
+
+function render() {
+  const q = searchVal.toLowerCase();
+  const filtered = biases.filter(b => {
+    const matchCat = activeCat === 'All' || b.cat === activeCat;
+    const matchQ = !q || b.name.toLowerCase().includes(q) || b.desc.toLowerCase().includes(q) || b.example.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+
+  countEl.textContent = `${filtered.length} bias${filtered.length !== 1 ? 'es' : ''}`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="no-results"><h3>No biases found</h3><p>Try a different search term or category.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((b, i) => `
+    <article class="card" style="animation-delay:${i * 0.04}s">
+      <div class="card-header">
+        <div class="cat-dot ${b.cat}"></div>
+        <div class="card-title-wrap">
+          <div class="card-name">${b.name}</div>
+          <span class="card-tag tag-${b.cat}">${b.cat === 'Decision' ? 'Decision-Making' : b.cat}</span>
+        </div>
+      </div>
+      <p class="card-desc">${b.desc}</p>
+      <div class="card-example">
+        <span>Example</span>
+        ${b.example}
+      </div>
+    </article>
+  `).join('');
+}
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    render();
+  });
+});
+
+searchEl.addEventListener('input', () => {
+  searchVal = searchEl.value;
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
